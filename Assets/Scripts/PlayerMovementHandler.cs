@@ -12,6 +12,7 @@ public class PlayerMovementHandler : MonoBehaviour
     [Header("Layer Assignments")]
     [SerializeField] private LayerMask _groundLayer;
 
+    private bool _canSwitchGravity = true;
     private Rigidbody2D _rb2D;
 
     private void Awake()
@@ -43,12 +44,14 @@ public class PlayerMovementHandler : MonoBehaviour
 
     /// <summary>
     /// Makes the player jump when the jump key is pressed AND the player is grounded.
+    /// Positive gravity adds an upwards force, else adds a downwards force.
     /// </summary>
     private void RenderVerticalMovement()
     {
+        int gravityFactor = (_rb2D.gravityScale > 0) ? 1 : -1;  // If jump is up or down
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
-            _rb2D.AddForce(new Vector2(_rb2D.velocity.x, _jumpPower),
+            _rb2D.AddForce(new Vector2(_rb2D.velocity.x, _jumpPower * gravityFactor),
                            ForceMode2D.Impulse);
         }
     }
@@ -59,9 +62,10 @@ public class PlayerMovementHandler : MonoBehaviour
     /// </summary>
     private void RenderGravityMovement()
     {
-        if (Input.GetKeyDown(KeyCode.G) && IsGrounded())
+        if (Input.GetKeyDown(KeyCode.G) && _canSwitchGravity)
         {
             _rb2D.gravityScale *= -1;
+            StartCoroutine(DisableGravitySwitchUntilGroundedCoroutine());
         }
     }
 
@@ -87,6 +91,18 @@ public class PlayerMovementHandler : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Disallows the player from switching their gravity until they are
+    /// grounded again.
+    /// </summary>
+    private IEnumerator DisableGravitySwitchUntilGroundedCoroutine()
+    {
+        _canSwitchGravity = false;
+        yield return new WaitForEndOfFrame();  // Wait until end of current frame
+        yield return new WaitUntil(IsGrounded);  // Wait until player is grounded again
+        _canSwitchGravity = true;
     }
 
 }
