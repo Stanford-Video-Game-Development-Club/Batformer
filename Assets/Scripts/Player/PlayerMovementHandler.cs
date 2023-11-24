@@ -11,6 +11,8 @@ public class PlayerMovementHandler : MonoBehaviour
     [SerializeField] private float _jumpPower;
     [Header("Layer Assignments")]
     [SerializeField] private LayerMask _groundLayer;
+    [Header("(Optional) Particle System Assignment")]
+    [SerializeField] private ParticleSystem _pSystem;
 
     private bool _canSwitchGravity = true;
     private Rigidbody2D _rb2D;
@@ -58,14 +60,31 @@ public class PlayerMovementHandler : MonoBehaviour
 
     /// <summary>
     /// Makes the player switch gravity when the gravity key is pressed AND the player
-    /// is grounded..
+    /// is grounded.
     /// </summary>
     private void RenderGravityMovement()
     {
         if (Input.GetKeyDown(KeyCode.G) && _canSwitchGravity)
         {
             _rb2D.gravityScale *= -1;
-            StartCoroutine(DisableGravitySwitchUntilGroundedCoroutine());
+            // If we have a particle system attached, emit particles.
+            if (_pSystem != null)
+            {
+                Vector2 pScale = _pSystem.transform.localScale;
+                Vector2 pPos = _pSystem.transform.localPosition;
+                float pMagn = Mathf.Abs(pPos.y);
+                if (_rb2D.gravityScale > 0)
+                {
+                    _pSystem.transform.localPosition = new(pPos.x, pMagn, 10);
+                    _pSystem.transform.localScale = new(pScale.x, -1);
+                } else
+                {
+                    _pSystem.transform.localPosition = new(pPos.x, -pMagn, 10);
+                    _pSystem.transform.localScale = new(pScale.x, 1);
+                }
+                _pSystem.Play();
+            }
+                StartCoroutine(DisableGravitySwitchUntilGroundedCoroutine());
         }
     }
 
