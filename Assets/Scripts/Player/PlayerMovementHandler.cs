@@ -85,12 +85,7 @@ public class PlayerMovementHandler : MonoBehaviour
         float distance = 1.0f;
 
         RaycastHit2D hit = Physics2D.Raycast(position, direction, distance, _groundLayer);
-        if (hit.collider != null)
-        {
-            return true;
-        }
-
-        return false;
+        return hit.collider != null;
     }
 
     /// <summary>

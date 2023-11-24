@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class HealthController : MonoBehaviour
 {
 
-    [Header("Enemy Properties")]
+    [Header("Health Properties")]
     [SerializeField] private float _health;
     public float Health
     {

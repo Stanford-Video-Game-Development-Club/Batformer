@@ -18,12 +18,21 @@ public class PlayerAttack : MonoBehaviour
             Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, _attackRange, _enemyLayer);
             foreach (Collider2D enemy in enemies) {
                 GameObject obj = enemy.gameObject;
-                if (obj.TryGetComponent(out EnemyController enemyController))
+                if (obj.TryGetComponent(out HealthController enemyController))
                 {
                     enemyController.Health -= _damageAmount;
                 }
             }
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        // Draws the radius for the attack range (editor only for debugging!).
+        UnityEditor.Handles.color = Color.yellow;
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.back, _attackRange);
+    }
+# endif
 
 }
